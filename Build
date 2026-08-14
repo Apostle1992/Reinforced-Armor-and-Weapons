@@ -1,1 +1,47 @@
+name: Build Reinforced Armor and Weapons
 
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+
+      - name: Extract mod source
+        run: unzip -q ReinforcedArmorWeapons-Fabric-1.21.1-USER-ARMOR-FIX.zip
+
+      - name: Build mod
+        working-directory: ReinforcedArmorWeapons-Fabric-1.21.1
+        run: gradle build --stacktrace
+
+      - name: Prepare finished mod
+        run: |
+          mkdir -p dist
+          cp ReinforcedArmorWeapons-Fabric-1.21.1/build/libs/reinforced-armor-weapons-1.0.0.jar dist/Reinforced-Armor-and-Weapons-1.0.0-MC1.21.1.jar
+
+      - name: Upload finished mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reinforced-Armor-and-Weapons-1.0.0-MC1.21.1
+          path: dist/Reinforced-Armor-and-Weapons-1.0.0-MC1.21.1.jar
